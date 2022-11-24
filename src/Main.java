@@ -4,6 +4,8 @@ import java.util.Scanner;
 import java.util.TreeMap;
 
 public class Main {
+    static final String MC_LIST = "LIST";
+
     public static void main(String[] args) {
 /*
   Цель задания
@@ -21,23 +23,33 @@ public class Main {
         Scanner loScanner = new Scanner(System.in);
         System.out.println("Введите имя либо номер телефона");
 
-        TreeMap<String, Integer> ltPhoneBook = new TreeMap<>();
+        TreeMap<String, String> ltNameBook = new TreeMap<>();
+        TreeMap<String, String> ltPhoneBook = new TreeMap<>();
 
         //Бесконечный цикл
         for (; ; ) {
             //Считать введенную строку
-            String lvNumberOrName = loScanner.nextLine();
+            String lvPhoneOrName = loScanner.nextLine();
+            String[] ltPhoneOrName = lvPhoneOrName.split("\\s+");
+
+            //Отобразить справочники
+            if (lvPhoneOrName.equals(MC_LIST)) {
+                printNameBook(ltNameBook);
+                printPhoneBook(ltPhoneBook);
+                continue;
+            }
+
             //Проверка на валидность имени
-            if (checkNumber(lvNumberOrName)) {
+            if (checkName(ltPhoneOrName[0])) {
                 //Проверка на содержание имени в справочнике,
                 // если есть - вывод на экран с телефоном
                 // если нет - программа просит ввести номер телефона и запоминает его.
-                if (checkNumberAtPhoneBook(lvNumberOrName, ltPhoneBook)) {
-//                   вывод на экран с телефоном
-//                   printBook();
+                if (checkNameAtNameBook(ltPhoneOrName[0], ltNameBook)) {
+//                   вывод в консоль с телефоном
+                    printNameBook(ltNameBook);
                 } else {
-//                    программа просит ввести номер телефона и запоминает его.
-//                    putIntoBook();
+////                    программа просит ввести номер телефона и запоминает его.
+                    ltNameBook = putNameBook(ltPhoneOrName[0], ltNameBook);
                 }
             } else {
                 System.out.println("Некорректное имя");
@@ -45,16 +57,16 @@ public class Main {
             }
 
             //Проверка на валидность телефона
-            if (checkPhone(lvNumberOrName)) {
+            if (checkPhone(ltPhoneOrName[1])) {
                 //Проверка на содержание телефона в справочнике,
                 // если есть - вывод на экран с именем
                 // если нет - программа просит ввести имя и также запоминает.
-                if (checkPhoneAtPhoneBook(lvNumberOrName, ltPhoneBook)) {
+                if (checkPhoneAtPhoneBook(ltPhoneOrName[1], ltPhoneBook)) {
 //                   вывод на экран с телефоном
-//                   printBook();
+                    printPhoneBook(ltPhoneBook);
                 } else {
 //                    программа просит ввести номер телефона и запоминает его.
-//                    putIntoBook();
+                    ltPhoneBook = putPhoneBook(ltPhoneOrName[1], ltPhoneBook);
                 }
             } else {
                 System.out.println("Некорректный номер телефона");
@@ -63,31 +75,83 @@ public class Main {
         }
     }
 
+    /* Вывод в консоль коллекции itNameMap */
+    private static void printNameBook(TreeMap<String, String> itNameMap) {
+        for (Map.Entry Entry : itNameMap.entrySet()) {
+            System.out.println(Entry);
+        }
+//        for (String lvKey : itNameMap.keySet()) {
+//            System.out.println("lvKey = " + lvKey + "itNameMap.get(lvKey) = " + itNameMap.get(lvKey));
+//        }
+    }
+
+    /* Вывод в консоль коллекции itPhoneMap */
+    private static void printPhoneBook(TreeMap<String, String> itPhoneMap) {
+        for (Map.Entry Entry : itPhoneMap.entrySet()) {
+            System.out.println(Entry);
+        }
+//        for (String lvKey : itPhoneMap.keySet()) {
+//            System.out.println("lvKey = " + lvKey + "itPhoneMap.get(lvKey) = " + itPhoneMap.get(lvKey));
+//        }
+    }
+
     /* Проверка на валидность введенного имени (не должно быть символов)*/
-    private static Boolean checkNumber(String ivNumberOrName) {
+    private static Boolean checkName(String ivPhoneOrName) {
         //+ означает "один или несколько раз" и \D означает "нецифру"
-        Boolean lvNoNumbers = ivNumberOrName.matches("\\D+");
+        Boolean lvNoNumbers = ivPhoneOrName.matches("\\D+");
         return lvNoNumbers;
     }
 
     /* Проверка на валидность введенного номера (не должно быть букв) */
-    private static Boolean checkPhone(String ivNumberOrName) {
+    private static Boolean checkPhone(String ivPhoneOrName) {
         //+ означает "один или несколько раз" и \d означает "цифру"
-        Boolean lvOnlyNumbers = ivNumberOrName.matches("\\d+");
+        Boolean lvOnlyNumbers = ivPhoneOrName.matches("\\d+");
         return lvOnlyNumbers;
     }
 
     /* Проверка на содержание имени в справочнике */
-    private static Boolean checkNumberAtPhoneBook(String ivNumberOrName,
-                                                  Map<String, Integer> itPhoneBook) {
-        Boolean lvIsInTheBook = itPhoneBook.containsKey(ivNumberOrName);
-        return false;
+    private static Boolean checkNameAtNameBook(String ivPhoneOrName,
+                                               Map<String, String> itNameBook) {
+        Boolean lvIsInTheBook = itNameBook.containsValue(ivPhoneOrName);
+        return lvIsInTheBook;
     }
 
     /* Проверка на содержание телефона в справочнике */
-    private static Boolean checkPhoneAtPhoneBook(String ivNumberOrName,
-                                                 Map<String, Integer> itPhoneBook) {
-        Boolean lvIsInTheBook = itPhoneBook.containsKey(ivNumberOrName);
-        return false;
+    private static Boolean checkPhoneAtPhoneBook(String ivPhoneOrName,
+                                                 Map<String, String> itPhoneBook) {
+        Boolean lvIsInTheBook = itPhoneBook.containsValue(ivPhoneOrName);
+        return lvIsInTheBook;
+    }
+
+    /* Вставка в NameBook имени */
+    private static TreeMap<String, String> putNameBook(String ivNumberOrName,
+                                                       TreeMap<String, String> itNameBook) {
+        //Проверка на существование ключа
+        Integer lvCount = 1;
+//        if (!itNameBook.containsKey(lvCount)) {
+        //Ключ не найден - добавить запись
+        itNameBook.put(ivNumberOrName + lvCount, ivNumberOrName);
+//        } else {
+//            //Ключ найден - добавить/изменить запись с другим ключом
+//            itPhoneBook.put(lvCount, lvNumberOrName);
+//        }
+
+        return itNameBook;
+    }
+
+    /* Вставка в PhoneBook номера */
+    private static TreeMap<String, String> putPhoneBook(String ivNumberOrName,
+                                                        TreeMap<String, String> itPhoneBook) {
+        //Проверка на существование ключа
+        Integer lvCount = 1;
+//        if (!itPhoneBook.containsKey(lvCount)) {
+        //Ключ не найден - добавить запись
+        itPhoneBook.put(ivNumberOrName + lvCount, ivNumberOrName);
+//        } else {
+//            //Ключ найден - добавить/изменить запись с другим ключом
+//            itPhoneBook.put(lvCount, lvNumberOrName);
+//        }
+
+        return itPhoneBook;
     }
 }
